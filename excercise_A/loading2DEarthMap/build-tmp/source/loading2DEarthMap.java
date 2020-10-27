@@ -14,22 +14,25 @@ import java.io.IOException;
 
 public class loading2DEarthMap extends PApplet {
 
+// written by nd3svt for interaction design zhdk
 PImage map;
 public void setup(){
 	
 	frameRate(30);
+	// loading the image file
+	// you can replace this with any other map image, just remember
+	// the map image needs to be compliant to the Geo Coordinate System
+	// the easiest way to be sure about it, is to use this image as scale reference
 	map = loadImage("data/earth.jpg");
 }
 public void draw(){
 	background(0);
-	
 	displayMap();
 	displayAxes();
-
 	displayGeoCoordinates();
-
 }
 
+// showing the map as an image
 public void displayMap(){
 	image(map,0,0,width,height);
 }
