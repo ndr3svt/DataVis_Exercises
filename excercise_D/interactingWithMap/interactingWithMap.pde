@@ -88,14 +88,14 @@ float deltaX;
 void mouseWheel(MouseEvent event) {
   	float e = event.getCount();
 	
-	float newWidth = width*scale;
-	float newHeight = height* scale;
-	float widthRatio = (mouseX-mouse.x)/newWidth;
-	float heightRatio = (mouseY-mouse.y)/newHeight;
-	float tX = widthRatio * width;
-	float tY = heightRatio * height;
-	if(scale>1.0){
-		mouse.set(mouseX + tX,mouseY + tY);
+	// float newWidth = width*scale;
+	// float newHeight = height* scale;
+	// float widthRatio = (mouseX-mouse.x)/newWidth;
+	// float heightRatio = (mouseY-mouse.y)/newHeight;
+	// float tX = widthRatio * width;
+	// float tY = heightRatio * height;
+	if(scale>1.5){
+		// mouse.set(mouseX + tX,mouseY + tY);
 	}	else{
 		mouse.set(mouseX ,mouseY);
 	}

@@ -110,8 +110,8 @@ public void mouseWheel(MouseEvent event) {
 	float heightRatio = (mouseY-mouse.y)/newHeight;
 	float tX = widthRatio * width;
 	float tY = heightRatio * height;
-	if(scale>1.0f){
-		mouse.set(mouseX + tX,mouseY + tY);
+	if(scale>2.0f){
+		// mouse.set(mouseX + tX,mouseY + tY);
 	}	else{
 		mouse.set(mouseX ,mouseY);
 	}
