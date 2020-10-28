@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream; 
 import java.io.IOException; 
 
-public class interactingWithMap extends PApplet {
+public class loadingMultipleGPSData extends PApplet {
 
 // written by nd3svt for BA Interaction Design zhdk
 // data literacy and visualization inputs
@@ -23,7 +23,7 @@ ArrayList<String> cities  = new ArrayList<String>();
 ArrayList<PVector> geoCoords = new ArrayList<PVector>();
 ArrayList<String> futCities = new ArrayList<String>();
 ArrayList<PVector> futGeoCoords = new ArrayList<PVector>();
-
+PVector human= new PVector();
 
 //drawing dimensions - this depends on your actual content
 float scale = 1.0f;
@@ -36,7 +36,6 @@ PImage map ;
 public void setup(){
 	
 	frameRate(30);
-
 	tint(255,240,250);
 	map = loadImage("data/earth_min.jpg");
 	loadData();
@@ -45,70 +44,24 @@ public void setup(){
 
 
 public void draw(){
-	background(255,240,250);
-	zoomInOut();
-	drag();
+	background(0);
+	displayStuff();
+	// zoomInOut();
 }
 
 boolean dragged = false;
 float lastMouseX = 0;
 float lastMouseY = 0;
-public void drag(){
-	if(mousePressed){
-		// dragged =true;
-		lastMouseX = 	mouseX-lastMouseX;
-		lastMouseY =	mouseY - lastMouseY;
-		shift.x = shift.x-lastMouseX;
-		shift.y = shift.y-lastMouseY;
-		// println(lastMouseX);
-	}
-	lastMouseX = mouseX;
-	lastMouseY = mouseY;
-	
-}
 
 
 
-public void zoomInOut(){
-	//isolate coordinate space
-	pushMatrix();
-	//move to where the transformation centre should be (this can be mixed with the above, but I left it on two lines so it's easier to understand)
-	translate(smoothMouse.x,smoothMouse.y);
-	//transform from set position
-	scale(scale);
-	//move the transformation back adding the shift
-	translate(-smoothMouse.x-shift.x,-smoothMouse.y-shift.y);
-	// //draw what you need to draw
-	displayStuff();
-	// //return to global coordinate space
-	popMatrix();
-	smoothMouse.set(smoothMouse.x *0.5f + mouse.x*0.5f, smoothMouse.y *0.5f + mouse.y*0.5f);
-}
+
+
 public void displayStuff(){
 	image(map,0,0,width,height);
 	displayData();
 	fill(0,255,0);
 	ellipse(human.x,human.y,10,10);
-}
-float deltaX;
-public void mouseWheel(MouseEvent event) {
-  	float e = event.getCount();
-	float newWidth = width*scale;
-	float newHeight = height* scale;
-	float widthRatio = (mouseX-mouse.x)/newWidth;
-	float heightRatio = (mouseY-mouse.y)/newHeight;
-	float tX = widthRatio * width;
-	float tY = heightRatio * height;
-	if(scale>1.5f){
-		mouse.set(mouseX,mouseY);
-	}	else{
-		mouse.set(mouseX ,mouseY);
-	}
-    scale += e / 100;
-    if(scale<1.0f){
-    	scale = 1.0f;
-    }
-
 }
 
 
@@ -136,22 +89,14 @@ public void loadData(){
 	    }
   	}
   	println(futureCities.getRowCount() + " total rows in table, but only " + entriesCount +" rows contain data " );
-
   	println("total city names : " + cities.size());
   	println("total geoCoords : " + geoCoords.size());
-
 }
-PVector human= new PVector();
 
 public void displayData(){
-	float newWidth = (width)*scale;
-	float newHeight = height* scale;
-	float widthRatio = (mouseX-mouse.x)/newWidth;
-	float heightRatio = (mouseY-mouse.y)/newHeight;
-	float tX = widthRatio * width;
-	float tY = heightRatio * height;
 
-	human = new PVector(mouse.x+tX+shift.x,mouse.y +tY +shift.y);	
+	// println(mouse.x + ", m x " + widthRatio);
+	human = new PVector(mouseX,mouseY);
 	noStroke();
 	for(int i=0;i< cities.size();i++){
 		float x = map(geoCoords.get(i).x, -180,180,0,width);
@@ -161,8 +106,10 @@ public void displayData(){
 			fill(180,100,255);
 			ellipse(x,y, 5,5);
 		}
+		
 	}
-
+	// textSize(200);
+	
 	// run the loop again just to print the label and the interest one on top of the other data
 	for(int i = 0; i < cities.size();i++){
 		float x = map(geoCoords.get(i).x, -180,180,0,width);
@@ -198,7 +145,7 @@ public void displayFutureCities(){
 	for (int i = 0; i < cities.size(); i ++){
 		float fut_x = map(futGeoCoords.get(i).x, -180,180,0,width);
 		float fut_y = map(futGeoCoords.get(i).y, 90, -90, 0, height);
-		fill(0,0,250,25);
+		fill(0,0,255,55);
 		ellipse(fut_x,fut_y,15,15);
 	}
 }
@@ -217,7 +164,7 @@ public void displayFuture(int index){
 
   public void settings() { 	size(1440, 720,FX2D); }
   static public void main(String[] passedArgs) {
-    String[] appletArgs = new String[] { "interactingWithMap" };
+    String[] appletArgs = new String[] { "loadingMultipleGPSData" };
     if (passedArgs != null) {
       PApplet.main(concat(appletArgs, passedArgs));
     } else {

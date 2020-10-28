@@ -1,5 +1,7 @@
-// import peasy.*;
-// PeasyCam cam;
+// written by nd3svt for BA Interaction Design zhdk
+// data literacy and visualization inputs
+// october - november 2020, Berlin
+
 Table futureCities;
 ArrayList<String> cities  = new ArrayList<String>();
 ArrayList<PVector> geoCoords = new ArrayList<PVector>();
@@ -19,25 +21,23 @@ void setup(){
 	size(1440, 720,FX2D);
 	frameRate(30);
 
-	tint(255,100);
-	map = loadImage("data/earth_bw.jpg");
+	tint(255,240,250);
+	map = loadImage("data/earth_min.jpg");
 	loadData();
 	rectMode(CENTER);
 }
 
 
 void draw(){
-	background(0);
-	// displayStuff();
+	background(255,240,250);
 	zoomInOut();
-	onDrag();
-
+	drag();
 }
 
 boolean dragged = false;
 float lastMouseX = 0;
 float lastMouseY = 0;
-void onDrag(){
+void drag(){
 	if(mousePressed){
 		// dragged =true;
 		lastMouseX = 	mouseX-lastMouseX;
@@ -54,52 +54,40 @@ void onDrag(){
 
 
 void zoomInOut(){
-	translate(width * .5, height * .5);
-	// translate(shift.x,0);
 	//isolate coordinate space
 	pushMatrix();
-	//move in the opposite direction by half of the drawing size => transform from drawing centre
-	translate(-width * .5,-height * .5);
 	//move to where the transformation centre should be (this can be mixed with the above, but I left it on two lines so it's easier to understand)
 	translate(smoothMouse.x,smoothMouse.y);
 	//transform from set position
 	scale(scale);
-	//move the transformation back
+	//move the transformation back adding the shift
 	translate(-smoothMouse.x-shift.x,-smoothMouse.y-shift.y);
-
 	// //draw what you need to draw
 	displayStuff();
 	// //return to global coordinate space
 	popMatrix();
-	
 	smoothMouse.set(smoothMouse.x *0.5 + mouse.x*0.5, smoothMouse.y *0.5 + mouse.y*0.5);
-
 }
 void displayStuff(){
-	
 	image(map,0,0,width,height);
 	displayData();
 	fill(0,255,0);
 	ellipse(human.x,human.y,10,10);
-	
-
 }
 float deltaX;
 void mouseWheel(MouseEvent event) {
   	float e = event.getCount();
-	
-	// float newWidth = width*scale;
-	// float newHeight = height* scale;
-	// float widthRatio = (mouseX-mouse.x)/newWidth;
-	// float heightRatio = (mouseY-mouse.y)/newHeight;
-	// float tX = widthRatio * width;
-	// float tY = heightRatio * height;
+	float newWidth = width*scale;
+	float newHeight = height* scale;
+	float widthRatio = (mouseX-mouse.x)/newWidth;
+	float heightRatio = (mouseY-mouse.y)/newHeight;
+	float tX = widthRatio * width;
+	float tY = heightRatio * height;
 	if(scale>1.5){
-		// mouse.set(mouseX + tX,mouseY + tY);
+		mouse.set(mouseX,mouseY);
 	}	else{
 		mouse.set(mouseX ,mouseY);
 	}
-    
     scale += e / 100;
     if(scale<1.0){
     	scale = 1.0;
@@ -147,28 +135,16 @@ void displayData(){
 	float tX = widthRatio * width;
 	float tY = heightRatio * height;
 
-
-
-
-	// println(mouse.x + ", m x " + widthRatio);
-	human = new PVector(mouse.x+tX+shift.x,mouse.y +tY +shift.y);
-	
+	human = new PVector(mouse.x+tX+shift.x,mouse.y +tY +shift.y);	
 	noStroke();
 	for(int i=0;i< cities.size();i++){
 		float x = map(geoCoords.get(i).x, -180,180,0,width);
 		float y = map(geoCoords.get(i).y, 90, -90, 0, height);
-		
-		
-		if(human.dist(new PVector(x,y))<5){
-			// fill(255);
-			// ellipse(x,y, 20,20);
-		}else{
-			fill(150);
-			ellipse(x,y, 10,10);
+		// if not touching points
+		if(human.dist(new PVector(x,y))>5){
+			fill(180,100,255);
+			ellipse(x,y, 5,5);
 		}
-		
-
-
 	}
 
 	// run the loop again just to print the label and the interest one on top of the other data
@@ -180,9 +156,12 @@ void displayData(){
 			displayFuture(i);
 			fill(255);
 			ellipse(x,y, 20,20);
+			textSize(20);
 			if(x>width/2){
+				fill(100,100,255);
 				text(cities.get(i), x+15,y+5);			
 			}else{
+				fill(100,100,255);
 				text(cities.get(i), x-75,y+5);	
 			}
 			
@@ -208,7 +187,7 @@ void displayFutureCities(){
 	}
 }
 void displayFuture(int index){
-
+	textSize(40);
 	float x = map(geoCoords.get(index).x, -180,180,0,width);
 	float y = map(geoCoords.get(index).y, 90, -90, 0, height);
 	float fut_x = map(futGeoCoords.get(index).x, -180,180,0,width);
