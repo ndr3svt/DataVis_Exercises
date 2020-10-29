@@ -8,8 +8,8 @@ void setup(){
 	frameRate(30);
 	// loading the image file
 	// you can replace this with any other map image, just remember
-	// the map image needs to be compliant to the Geo Coordinate System
-	// the easiest way to be sure about it, is to use this image as scale reference
+	// the map image needs to be compliant to the Geo Coordinate System or a equirectangular projection
+	// the easiest way to be sure about it, is to use the image in this sketch as scale reference
 	map = loadImage("data/earth_min.jpg");
 }
 void draw(){

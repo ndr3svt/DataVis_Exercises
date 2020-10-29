@@ -41,19 +41,24 @@ boolean easycamIntialized =false;
 int rX=-90;
 int rY=0;
 int rZ=0;
+PGraphics canvas;
 
 
+// public void settings() {
+//   // fullScreen( P3D, 2);
 
-public void settings() {
-  fullScreen( P3D, 2);
-  smooth(5);
-}
+//   smooth(5);
+// }
 
 public void setup() {
-  frameRate(120);
-   cam = new PeasyCam(this, 800);
+  
+  canvas = createGraphics(width, height, P3D);
+  cam = new PeasyCam(this, 800);
+  frameRate(60);
+  
 
-   g3 = (PGraphics3D) g;
+
+   // g3 = (PGraphics3D) g;
 
    if(!easycamIntialized){
      
@@ -68,52 +73,59 @@ public void setup() {
   surftex2 = loadImage("data/earth_sat.jpg");
   // surftex1.resize(width,height);
 
-  sphereDetail(30);
-  noStroke();
-  earth = createShape(SPHERE, r);
+  canvas.sphereDetail(30);
+  canvas.noStroke();
+  earth = canvas.createShape(SPHERE, r);
   earth.setTexture(surftex1);
 
 }
 
 public void draw() {
-    currCameraMatrix = new PMatrix3D(g3.camera);
+    // currCameraMatrix = new PMatrix3D(g3.camera);
+
+    // cam.getState().apply(canvas);
+
   // Even we draw a full screen image after this, it is recommended to use
   // background to clear the screen anyways, otherwise A3D will think
   // you want to keep each drawn frame in the framebuffer, which results in 
   // slower rendering.
-  background(255);
+  canvas.beginDraw();
+  canvas.background(255);
 
   // Disabling writing to the depth mask so the 
   // background image doesn't occludes any 3D object.
-  hint(DISABLE_DEPTH_MASK);
+  canvas.hint(DISABLE_DEPTH_MASK);
   //image(starfield, 0, 0, width, height);
-  hint(ENABLE_DEPTH_MASK);
+  canvas.hint(ENABLE_DEPTH_MASK);
 
-  directionalLight(255, 0,0, -1, -1, -1);
-
-  // ambientLight(255, 0, 235);
-  ambientLight(0, 0, 255);
-  push();
-  rotateX(radians( rX));
-  rotateY(radians(rY));
-  rotateZ(radians(rZ));
-  shape(earth);
-  pop();
+  canvas.directionalLight(255, 0,0, -10, -10, -10);
+  canvas.directionalLight(100, 255, 50, 0,0,10);
+  canvas.directionalLight(255, 100, 50, 0,10,0);
+  canvas.directionalLight(0, 0, 255, 10,-10,-10);
+  canvas.push();
+  canvas.rotateX(radians( rX));
+  canvas.rotateY(radians(rY));
+  canvas.rotateZ(radians(rZ));
+  canvas.shape(earth);
+  canvas.pop();
   cam.beginHUD();
-  textSize(12);
+  canvas.textSize(12);
   fill(255,0,0);
   text("fps : " +frameRate,100,100);
   text(" rx :  " + rX,100,115);
   text(" ry :  " + rY,100,130);
   text(" rz :  " + rZ,100,145);
   cam.endHUD();
-  displayOneGPSLocation(55.66174835669238f, 12.513764710947195f, "Copenhagen", 0);
-  displayOneGPSLocation(48.827829637474956f, 2.334334953320408f, "Paris", 1);
-  displayOneGPSLocation(-33.89517888896039f, -58.656823360705175f, "Buenos Aires", 2);
+  // displayOneGPSLocation(55.66174835669238, 12.513764710947195, "Copenhagen", 0);
+  // displayOneGPSLocation(48.827829637474956, 2.334334953320408, "Paris", 1);
+  // displayOneGPSLocation(-33.89517888896039, -58.656823360705175, "Buenos Aires", 2);
   displayOneGPSLocation(19.395175071159112f, -99.16421378630378f, "Ciudad de México", 3);
+  canvas.endDraw();
+  cam.getState().apply(canvas);
+  image(canvas, 0, 0);
   // if(frameCount%120 == 0) println(frameRate);
 
-  g3.camera = currCameraMatrix;
+  // g3.camera = currCameraMatrix;
 }
 
 
@@ -151,21 +163,23 @@ public void displayOneGPSLocation(float latitude, float longitude, String name, 
   Proj2DPoint loc2D = new Proj2DPoint();
   loc2D.screenPoint(location.x,location.y,location.z);
 
-  strokeWeight(10);
-  stroke(255,0,0);
-  point(-location.x,location.y,location.z);
-  push();
-  translate(-location.x, location.y, location.z);
-  text(name, 10,10);
-  pop();
+  canvas.strokeWeight(10);
+  canvas.stroke(255,0,0);
+  canvas.point(-location.x,location.y,location.z);
+  canvas.push();
+  canvas.translate(-location.x, location.y, location.z);
+  canvas.text(name, 10,10);
+  canvas.pop();
 
   cam.beginHUD();
-  text(loc2D.m.x + " ,  " + loc2D.m.y, 100,160+ 15*i);
+  text(loc2D.m.x + " ,  " + loc2D.m.y +  " , " + loc2D.m.z, 100,160+ 15*i);
   cam.endHUD();
 
   // text(name,location.x+25,location.y+30);
   // stroke(255,0,0);
   // line(location.x,location.y,location.x+25,location.y+25);
+  // canvas.printMatrix();
+  // println(canvas.BLUE_MASK);
 }
 
 
@@ -178,14 +192,58 @@ class Proj2DPoint{
     this.m = new PVector();
   }
   public void screenPoint(float x, float y, float z){
-    pushMatrix();
-    applyMatrix(g3.camera);
-    this.m.x = modelX(x,y,z);
-    this.m.y = modelY(x,y,z);
-    this.m.z = modelZ(x,y,z);
-    popMatrix();
+    canvas.pushMatrix();
+    // applyMatrix(g3.camera);
+    canvas.applyMatrix(canvas.getMatrix());
+    PMatrix m4= canvas.getMatrix();
+    // canvas.printMatrix();
+    float [] mArray =new float[16];
+    m4.get( mArray);
+    // canvas.printMatrix();
+    // println(m4.n00);
+    // println(mArray[0]);
+    // float[] get(float[] mArray);
+    // canvas.printMatrix();
+    this.m.x = canvas.modelX(x,y,z);
+    this.m.y = canvas.modelY(x,y,z);
+    this.m.z = canvas.modelZ(x,y,z);
+    PVector ths = new PVector(x,y,z);
+    screenPosition(mArray, ths);
+    canvas.popMatrix();
 
    
+  }
+  public void screenPosition(float [] mat, PVector v){
+    PVector vNDC = multMatrixVector(mat, v);
+    PVector vCanvas = new PVector();
+    vCanvas.x = vNDC.x;
+    vCanvas.y = vNDC.y;
+    // vCanvas.x = 0.5 * vNDC.x * width;
+    // vCanvas.y = 0.5 * -vNDC.y * height;
+    cam.beginHUD();
+    text("scrn x: "+vCanvas.x,100,400);
+    cam.endHUD();
+  }
+  public PVector multMatrixVector(float [] mat, PVector v) {
+  // if (!(m instanceof p5.Matrix) || !(v instanceof p5.Vector)) {
+  //  print('multMatrixVector : Invalid arguments');
+  //  return;
+  // }
+
+  PVector _dest = new PVector();
+  
+
+  // Multiply in column major order.
+  _dest.x = mat[0] * v.x + mat[4] * v.y + mat[8] * v.z + mat[12];
+  _dest.y = mat[1] * v.x + mat[5] * v.y + mat[9] * v.z + mat[13];
+  _dest.z = mat[2] * v.x + mat[6] * v.y + mat[10] * v.z + mat[14];
+  float w = mat[3] * v.x + mat[7] * v.y + mat[11] * v.z + mat[15];
+
+  if (abs(w) > EPSILON) {
+  _dest.mult(1.0f / w);
+  }
+
+  return _dest;
   }
 
 }
@@ -244,6 +302,7 @@ class Proj2DPoint{
 
 // 		return _dest;
 // 	}
+  public void settings() {  size(displayWidth,displayHeight,P2D); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "geoDataIn3D" };
     if (passedArgs != null) {
