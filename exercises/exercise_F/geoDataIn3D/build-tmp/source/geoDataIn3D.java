@@ -31,6 +31,8 @@ PShape earth;
 PImage surftex1;
 PImage surftex2;
 
+PFont myFont, myFontH;
+
 PGraphics3D g3;
 PeasyCam cam;
 PMatrix3D currCameraMatrix;
@@ -42,49 +44,55 @@ int rX=-90;
 int rY=0;
 int rZ=0;
 PGraphics canvas;
+// examples of manually added points
+PointOfInterest pOI_0, pOI_1, pOI_2, pOI_3,pOI_4;
+PVector human  = new PVector();
 
-
-// public void settings() {
-//   // fullScreen( P3D, 2);
-
-//   smooth(5);
-// }
+// for loading data from future cities database
+Table futureCities;
+ArrayList<String> cities  = new ArrayList<String>(); // names of the cities
+ArrayList<PVector> geoCoords = new ArrayList<PVector>();
+ArrayList<String> futCities = new ArrayList<String>(); // names of the future cities
+ArrayList<PVector> futGeoCoords = new ArrayList<PVector>();
 
 public void setup() {
   
   canvas = createGraphics(width, height, P3D);
   cam = new PeasyCam(this, 800);
-  frameRate(60);
+  cam.setWheelScale(0.05f);
+  myFont = createFont("Helvetica", 12);
+  myFontH = createFont("Helvetica", 64);
   
+  frameRate(60);
+  pOI_0 = new PointOfInterest(19.395175071159112f, -99.16421378630378f, "CDMX", r, 0);
+  pOI_1 = new PointOfInterest(55.66174835669238f, 12.513764710947195f, "Copenhagen", r,1);
+  pOI_2 = new PointOfInterest(-33.89517888896039f, -58.656823360705175f, "Buenos Aires",r, 2);
+  pOI_3 = new PointOfInterest(48.868755553906496f, 2.3463870250755137f, "Paris",r, 3);
+  pOI_4 = new PointOfInterest(47.37578791948954f, 8.531219466080843f, "Zürich",r, 4);
 
 
-   // g3 = (PGraphics3D) g;
+  if(!easycamIntialized){
 
-   if(!easycamIntialized){
-     
-    //easycam = new Dw.EasyCam(this._renderer, {distance:1500, center:[0,0,0]}) ;
-    //cam.
-    cam.setMinimumDistance(100);
-    cam.setMaximumDistance(r*60);
+    cam.setMinimumDistance(20);
+    cam.setMaximumDistance(r*600);
     easycamIntialized=true;
   }
-  surftex1 = loadImage("data/earth_min.jpg");  
-  surftex1.resize(surftex1.width, surftex1.height);
-  surftex2 = loadImage("data/earth_sat.jpg");
-  // surftex1.resize(width,height);
 
-  canvas.sphereDetail(30);
+  // surftex1 =loadImage("data/earth_sat.jpg"); 
+  surftex1 =loadImage("data/earth_min.jpg"); 
+
+
+  canvas.sphereDetail(32);
   canvas.noStroke();
   earth = canvas.createShape(SPHERE, r);
   earth.setTexture(surftex1);
 
+  loadData();
+
 }
 
 public void draw() {
-    // currCameraMatrix = new PMatrix3D(g3.camera);
-
-    // cam.getState().apply(canvas);
-
+  human.set(mouseX,mouseY);
   // Even we draw a full screen image after this, it is recommended to use
   // background to clear the screen anyways, otherwise A3D will think
   // you want to keep each drawn frame in the framebuffer, which results in 
@@ -95,43 +103,133 @@ public void draw() {
   // Disabling writing to the depth mask so the 
   // background image doesn't occludes any 3D object.
   canvas.hint(DISABLE_DEPTH_MASK);
-  //image(starfield, 0, 0, width, height);
   canvas.hint(ENABLE_DEPTH_MASK);
-
   canvas.directionalLight(255, 0,0, -10, -10, -10);
   canvas.directionalLight(100, 255, 50, 0,0,10);
   canvas.directionalLight(255, 100, 50, 0,10,0);
-  canvas.directionalLight(0, 0, 255, 10,-10,-10);
+  canvas.directionalLight(180, 180, 255, 10,-10,-10);
+  // this rotation is applied to correct the rotation of the texture according to 
   canvas.push();
   canvas.rotateX(radians( rX));
   canvas.rotateY(radians(rY));
   canvas.rotateZ(radians(rZ));
   canvas.shape(earth);
   canvas.pop();
+  pOI_0.display3D(canvas);
+  pOI_1.display3D(canvas);
+  pOI_2.display3D(canvas);
+  pOI_3.display3D(canvas);
+  pOI_4.display3D(canvas);
+  displayMultiplePOI3D();
+
   cam.beginHUD();
-  canvas.textSize(12);
-  fill(255,0,0);
-  text("fps : " +frameRate,100,100);
-  text(" rx :  " + rX,100,115);
-  text(" ry :  " + rY,100,130);
-  text(" rz :  " + rZ,100,145);
+  // example to draw stuff on 2D outside the 3D context
+  // fill(255,0,0);
+  // textSize(12);
+  // text("fps : " +frameRate,100,100);
+  // text(" rx :  " + rX,100,115);
+  // text(" ry :  " + rY,100,130);
+  // text(" rz :  " + rZ,100,145);
   cam.endHUD();
-  // displayOneGPSLocation(55.66174835669238, 12.513764710947195, "Copenhagen", 0);
-  // displayOneGPSLocation(48.827829637474956, 2.334334953320408, "Paris", 1);
-  // displayOneGPSLocation(-33.89517888896039, -58.656823360705175, "Buenos Aires", 2);
-  displayOneGPSLocation(19.395175071159112f, -99.16421378630378f, "Ciudad de México", 3);
+ 
   canvas.endDraw();
   cam.getState().apply(canvas);
   image(canvas, 0, 0);
+
+  pOI_0.update(canvas);
+  pOI_0.display2D();
+  pOI_0.interact(human);
+  pOI_1.update(canvas);
+  pOI_1.display2D();
+  pOI_1.interact(human);
+  pOI_2.update(canvas);
+  pOI_2.display2D();
+  pOI_2.interact(human);
+  pOI_3.update(canvas);
+  pOI_3.display2D();
+  pOI_3.interact(human);
+  pOI_4.update(canvas);
+  pOI_4.display2D();
+  pOI_4.interact(human);
   // if(frameCount%120 == 0) println(frameRate);
+
+  displayMultiplePOI2D();
 
   // g3.camera = currCameraMatrix;
 }
 
 
 
-public void displayOneGPSLocation(float latitude, float longitude, String name, int i){
 
+PointOfInterest [] pOIs;
+public void loadData() {
+
+
+  futureCities = loadTable("data/future_cities_data.csv", "header");
+  println(futureCities.getRowCount() + " total rows in table");
+
+  int entriesCount =0;
+  for (TableRow row : futureCities.rows()) {
+    String city = row.getString("current_city");
+    float longitude = row.getFloat("Longitude");
+    float latitude = row.getFloat("Latitude");
+
+    String futureCity = row.getString("future_city_1_source");
+
+    float longFut = row.getFloat("future_long");
+    float latFut = row.getFloat("future_lat");
+
+    if (city.length()>0) {
+      // println(city, longitude, latitude );
+      cities.add(city);
+      geoCoords.add(new PVector(longitude, latitude));
+
+      futCities.add(futureCity);
+      futGeoCoords.add(new PVector(longFut, latFut));
+
+    }
+  }
+  pOIs = new PointOfInterest[cities.size()];
+  multiplePOI();
+}
+
+public void multiplePOI(){
+
+   for (int i=0; i<cities.size(); i++) {
+
+    pOIs[i] = new PointOfInterest(geoCoords.get(i).y,geoCoords.get(i).x, cities.get(i), 400, i);
+
+   }
+}
+
+public void displayMultiplePOI2D(){
+  for (int i=0; i<cities.size(); i++) {
+    pOIs[i].update(canvas);
+    pOIs[i].display2D();
+    pOIs[i].interact(human);
+  }
+}
+
+public void displayMultiplePOI3D(){
+  for (int i=0; i<cities.size(); i++) {
+
+    pOIs[i].display3D(canvas);
+
+  }
+}
+
+
+class  PointOfInterest{
+
+  PVector location;
+  float radius;
+  PVector scrnPnt =new PVector();
+  String name;
+  int i;
+  float lat, lon;
+  PointOfInterest(float latitude, float longitude, String _name, float _r, int _i){
+
+  // some explanation on Geo Coordinates to an spheric system
   // lat long to > x y for vis in 2D
   // x = output_start + ((output_end - output_start) / (input_end - input_start)) * (input - input_start)
   // x = 0 + ((width - 0) / (180 - (-180))) * (longitude - (-180))
@@ -152,101 +250,75 @@ public void displayOneGPSLocation(float latitude, float longitude, String name, 
   // x = R* cos (latitude in radians) * cos(longitude in radians);
   // y = R * cos(latitude in radians) * sin(longitude in radians);
   // z = R * sin(latitude in radians )
-  float radius = r + 10; // with 10 units away from earth's surface
-  PVector location = new PVector(
-    radius* cos (radians(latitude)) * cos(radians(longitude)),
-    radius * cos(radians(latitude)) * sin(radians(longitude)),
-    radius * sin(radians(latitude))
-  );
+    lat = latitude;
+    lon = longitude;
+    radius = _r +0.5f; // with 10 units away from earth's surface
+    location = new PVector(
+      radius* cos (radians(latitude)) * cos(radians(longitude)),
+      radius * cos(radians(latitude)) * sin(radians(longitude)),
+      radius * sin(radians(latitude))
+    );
+    name = _name;
+    i = _i;
+  }
 
-  
-  Proj2DPoint loc2D = new Proj2DPoint();
-  loc2D.screenPoint(location.x,location.y,location.z);
-
-  canvas.strokeWeight(10);
-  canvas.stroke(255,0,0);
-  canvas.point(-location.x,location.y,location.z);
-  canvas.push();
-  canvas.translate(-location.x, location.y, location.z);
-  canvas.text(name, 10,10);
-  canvas.pop();
-
-  cam.beginHUD();
-  text(loc2D.m.x + " ,  " + loc2D.m.y +  " , " + loc2D.m.z, 100,160+ 15*i);
-  cam.endHUD();
-
-  // text(name,location.x+25,location.y+30);
-  // stroke(255,0,0);
-  // line(location.x,location.y,location.x+25,location.y+25);
-  // canvas.printMatrix();
-  // println(canvas.BLUE_MASK);
-}
-
-
-class Proj2DPoint{
-  float x, y, z;
-  PVector m;
-
-  Proj2DPoint(){
+  public void update(PGraphics _canvas){
+    scrnPnt.set(
+      _canvas.screenX(-location.x,location.y,location.z), 
+      _canvas.screenY(-location.x,location.y,location.z),
+      _canvas.screenZ(-location.x,location.y,location.z)
+    );
+  }
+  public void display3D(PGraphics _canvas){
+    _canvas.strokeWeight(10);
+    _canvas.stroke(255,0,0);
+    _canvas.point(-location.x,location.y,location.z);
     
-    this.m = new PVector();
-  }
-  public void screenPoint(float x, float y, float z){
-    canvas.pushMatrix();
-    // applyMatrix(g3.camera);
-    canvas.applyMatrix(canvas.getMatrix());
-    PMatrix m4= canvas.getMatrix();
-    // canvas.printMatrix();
-    float [] mArray =new float[16];
-    m4.get( mArray);
-    // canvas.printMatrix();
-    // println(m4.n00);
-    // println(mArray[0]);
-    // float[] get(float[] mArray);
-    // canvas.printMatrix();
-    this.m.x = canvas.modelX(x,y,z);
-    this.m.y = canvas.modelY(x,y,z);
-    this.m.z = canvas.modelZ(x,y,z);
-    PVector ths = new PVector(x,y,z);
-    screenPosition(mArray, ths);
-    canvas.popMatrix();
-
-   
-  }
-  public void screenPosition(float [] mat, PVector v){
-    PVector vNDC = multMatrixVector(mat, v);
-    PVector vCanvas = new PVector();
-    vCanvas.x = vNDC.x;
-    vCanvas.y = vNDC.y;
-    // vCanvas.x = 0.5 * vNDC.x * width;
-    // vCanvas.y = 0.5 * -vNDC.y * height;
-    cam.beginHUD();
-    text("scrn x: "+vCanvas.x,100,400);
-    cam.endHUD();
-  }
-  public PVector multMatrixVector(float [] mat, PVector v) {
-  // if (!(m instanceof p5.Matrix) || !(v instanceof p5.Vector)) {
-  //  print('multMatrixVector : Invalid arguments');
-  //  return;
-  // }
-
-  PVector _dest = new PVector();
-  
-
-  // Multiply in column major order.
-  _dest.x = mat[0] * v.x + mat[4] * v.y + mat[8] * v.z + mat[12];
-  _dest.y = mat[1] * v.x + mat[5] * v.y + mat[9] * v.z + mat[13];
-  _dest.z = mat[2] * v.x + mat[6] * v.y + mat[10] * v.z + mat[14];
-  float w = mat[3] * v.x + mat[7] * v.y + mat[11] * v.z + mat[15];
-
-  if (abs(w) > EPSILON) {
-  _dest.mult(1.0f / w);
   }
 
-  return _dest;
+  public void display2D(){
+    fill(0,0,255);
+    strokeWeight(0.5f);
+    stroke(0,0,255,100);
+    
+
+    stroke(0,0,255);
+    strokeWeight(4);
+    point(scrnPnt.x,scrnPnt.y);
+    
   }
+  public void interact(PVector _human){
+    if(_human.dist(scrnPnt)< 10){
+      strokeWeight(0.5f);
+      stroke(0,0,255,100);
+      float lx = scrnPnt.x;
+      float ly = scrnPnt.y;
+      line(lx,0,lx,height);
+      line(0,ly,width,ly);
+      textFont(myFont);
+      text(name, 25,180);
+      text("screen coords : " + scrnPnt.x + " ,  " + scrnPnt.y +  " , " + scrnPnt.z, 25,200);
+      text("3D coords : "  + -location.x + " ,  " + location.y +  " , " + location.z, 25,220);
+      textFont(myFontH);
+      text(name, width-300,scrnPnt.y+10);
+      textFont(myFont);
+      text("lat : " + lat + "lon : " + lon, width-300,scrnPnt.y+50);
+      noStroke();
+      fill(0,0,255,50);
+      ellipse(scrnPnt.x, scrnPnt.y, 40, 40);
+
+      if(mousePressed){
+        // cam.lookAt(-location.x,location.y,location.z);
+      }
+    }
+
+  }
+
 
 }
+
+
+
 
 // void screenPosition(x, y, z) {
 
