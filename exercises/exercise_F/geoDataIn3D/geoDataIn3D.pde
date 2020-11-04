@@ -96,11 +96,11 @@ void draw() {
   canvas.rotateZ(radians(rZ));
   canvas.shape(earth);
   canvas.pop();
-  pOI_0.display3D(canvas);
-  pOI_1.display3D(canvas);
-  pOI_2.display3D(canvas);
-  pOI_3.display3D(canvas);
-  pOI_4.display3D(canvas);
+  //pOI_0.display3D(canvas);
+  //pOI_1.display3D(canvas);
+  //pOI_2.display3D(canvas);
+  //pOI_3.display3D(canvas);
+  //pOI_4.display3D(canvas);
   displayMultiplePOI3D();
 
   cam.beginHUD();
@@ -117,21 +117,21 @@ void draw() {
   cam.getState().apply(canvas);
   image(canvas, 0, 0);
 
-  pOI_0.update(canvas);
-  pOI_0.display2D();
-  pOI_0.interact(human);
-  pOI_1.update(canvas);
-  pOI_1.display2D();
-  pOI_1.interact(human);
-  pOI_2.update(canvas);
-  pOI_2.display2D();
-  pOI_2.interact(human);
-  pOI_3.update(canvas);
-  pOI_3.display2D();
-  pOI_3.interact(human);
-  pOI_4.update(canvas);
-  pOI_4.display2D();
-  pOI_4.interact(human);
+  //pOI_0.update(canvas);
+  //pOI_0.display2D();
+  //pOI_0.interact(human);
+  //pOI_1.update(canvas);
+  //pOI_1.display2D();
+  //pOI_1.interact(human);
+  //pOI_2.update(canvas);
+  //pOI_2.display2D();
+  //pOI_2.interact(human);
+  //pOI_3.update(canvas);
+  //pOI_3.display2D();
+  //pOI_3.interact(human);
+  //pOI_4.update(canvas);
+  //pOI_4.display2D();
+  //pOI_4.interact(human);
   // if(frameCount%120 == 0) println(frameRate);
 
   displayMultiplePOI2D();
