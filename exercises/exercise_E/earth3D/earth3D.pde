@@ -7,11 +7,7 @@ import peasy.PeasyCam;
 PShape earth;
 
 PImage surftex1;
-PImage surftex2;
-PImage cloudtex;
-float angleY;
-float angleX = -0.04;
-float angleCloud = 0;
+
 PeasyCam cam;
 float r = 400;
 boolean easycamIntialized =false;
@@ -32,8 +28,7 @@ void setup() {
     easycamIntialized=true;
   }
   surftex1 = loadImage("data/earth_min.jpg");  
-  // surftex1.resize(surftex1.width, surftex1.height);
-  surftex2 = loadImage("data/earth_sat.jpg");
+
 
   sphereDetail(40);
   noStroke();
@@ -67,4 +62,3 @@ void draw() {
   cam.endHUD();
   // if(frameCount%120 == 0) println(frameRate);
 }
-
