@@ -15,7 +15,6 @@ PImage surftex2;
 
 PFont myFont, myFontH;
 
-PGraphics3D g3;
 PeasyCam cam;
 PMatrix3D currCameraMatrix;
 
@@ -137,7 +136,6 @@ void draw() {
 
   displayMultiplePOI2D();
 
-  // g3.camera = currCameraMatrix;
 }
 
 
@@ -298,7 +296,3 @@ class  PointOfInterest{
 
 
 }
-
-
-
-
